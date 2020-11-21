@@ -10,7 +10,7 @@ sourceSets {
     main {
         java {
             srcDirs 'src/main/java'
-            srcDirs 'java-graphics/src/main/java'
+            srcDirs 'base-java-graphics/src/main/java'
         }
     }
 }
@@ -23,7 +23,7 @@ repositories {
     mavenCentral()
 }
 
-mainClassName = 'com.busatod.graphics.cgbook.ComputerGraphics'
+mainClassName = 'comp.grafx.Main'
 
 jar {
     manifest {
