@@ -1,0 +1,3 @@
+once the subtree proj has been pulled in, to fix the unresolved refs in the java src:
+from the proj explorer view, right click on base-java-graphics/src/main/java, select
+"use as source folder"

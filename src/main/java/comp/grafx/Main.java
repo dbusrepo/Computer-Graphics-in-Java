@@ -7,7 +7,7 @@ public class Main extends GraphicsApplication {
 
 	public Main() {
 		Settings settings = new Settings();
-		settings.title = "Hello Java Graphics!";
+		settings.title = "Hello Computer Graphics in Java!";
 		start(settings);
 	}
 
