@@ -1,11 +1,14 @@
-package com.busatod.graphics.app;
+package comp.graphics;
 
-public class TestGraphicsApp extends GraphicsApplication
+import com.busatod.graphics.app.GraphicsApplication;
+import com.busatod.graphics.app.Settings;
+
+public class ComputerGraphics extends GraphicsApplication
 {
-	public TestGraphicsApp()
+	public ComputerGraphics()
 	{
 		Settings settings = new Settings();
-		settings.title = "Test Graphics app";
+		settings.title = "Hello Computer Graphics!";
 		start(settings);
 	}
 	
@@ -35,6 +38,6 @@ public class TestGraphicsApp extends GraphicsApplication
 	
 	public static void main(String[] args)
 	{
-		new TestGraphicsApp();
+		new ComputerGraphics();
 	}
 }

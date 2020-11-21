@@ -1,1 +1,1 @@
-# JavaComputerGraphics
+# Computer Graphics in Java
