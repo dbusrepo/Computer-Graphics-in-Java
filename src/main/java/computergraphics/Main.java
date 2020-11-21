@@ -1,4 +1,4 @@
-package comp.grafx;
+package computergraphics;
 
 import base.graphics.app.GraphicsApplication;
 import base.graphics.app.Settings;
