@@ -535,9 +535,9 @@ public abstract class GraphicsApplication implements Runnable {
 	}
 
 	protected void drawBackground() {
-		Graphics2D gBuffer = (Graphics2D) bufferedImage.getGraphics();
-		gBuffer.setColor(Color.BLACK);
-		gBuffer.fillRect(0, 0, bufferedImage.getWidth(),
+		Graphics2D g = (Graphics2D) bufferedImage.getGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, bufferedImage.getWidth(),
 				bufferedImage.getHeight());
 	}
 
