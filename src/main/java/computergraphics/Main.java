@@ -15,9 +15,8 @@ public class Main extends GraphicsApplication {
 	}
 
 	@Override
-	protected void draw() {
-		drawBackground();
-		Graphics2D g = (Graphics2D) bufferedImage.getGraphics();
+	protected void appDrawImage(Graphics2D g) {
+		drawImageBackground(g);
 		int maxX = bufferedImage.getWidth() - 1;
 		int maxY = bufferedImage.getHeight() - 1;
 		g.drawString("maxX = " + maxX, 10, 30);
