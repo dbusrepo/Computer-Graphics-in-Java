@@ -15,35 +15,32 @@ public class Main extends GraphicsApplication {
 	}
 
 	@Override
-	protected void appDrawImage(Graphics2D g) {
-		drawImageBackground(g);
-		int maxX = bufferedImage.getWidth() - 1;
-		int maxY = bufferedImage.getHeight() - 1;
+	protected void appDrawCanvas(Graphics2D g) {
+		g.setBackground(Color.BLACK);
+		g.clearRect(0, 0, getCanvas().getWidth(), getCanvas().getHeight());
+		int maxX = getCanvas().getWidth() - 1;
+		int maxY = getCanvas().getHeight() - 1;
 		g.drawString("maxX = " + maxX, 10, 30);
 		g.drawString("maxY = " + maxY, 10, 60);
-		g.setColor(Color.red);
+		g.setColor(Color.RED);
 		g.drawRect(0, 0, maxX, maxY);
 //		g.drawLine(30, 50, 200, 150);
 	}
 
 	@Override
 	protected void appInit() {
-
 	}
 
 	@Override
 	protected void appUpdate(long elapsedTime) {
-
 	}
 
 	@Override
 	protected void appFinishOff() {
-
 	}
 
 	@Override
 	protected void appPrintFinalStats() {
-
 	}
 
 	public static void main(String[] args) {
