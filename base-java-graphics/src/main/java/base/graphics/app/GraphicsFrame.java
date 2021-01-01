@@ -14,9 +14,8 @@ import java.text.DecimalFormat;
 
 import javax.swing.JFrame;
 
+@SuppressWarnings("serial")
 class GraphicsFrame extends JFrame implements WindowListener {
-
-	private static final long serialVersionUID = 1L;
 
 	private GraphicsApplication graphApp;
 	private Settings settings;
@@ -28,6 +27,7 @@ class GraphicsFrame extends JFrame implements WindowListener {
 
 	public GraphicsFrame(GraphicsApplication graphApp) {
 		super(graphApp.getGraphicsConfiguration());
+		graphApp.setGraphFrame(this);
 		this.graphApp = graphApp;
 	}
 
@@ -58,7 +58,7 @@ class GraphicsFrame extends JFrame implements WindowListener {
 		initBufferStrategy();
 		setVisible(true); // done in graphics app
 		setFocusable(true);
-		graphApp.initMenu();
+		graphApp.appInitMenu();
 		requestFocus();
 	}
 
@@ -93,12 +93,12 @@ class GraphicsFrame extends JFrame implements WindowListener {
 ////					canvas.createBufferStrategy(settings.numBuffers);
 //				}
 //			});
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			System.out.println("Error while creating buffer strategy");
 			System.exit(0);
 		}
 		try { // sleep to give time for the buffer strategy to be carried out
-			Thread.sleep(500); // 0.5 sec
+			Thread.sleep(100); // 0.5 sec
 		} catch (InterruptedException ex) {
 		}
 	}
@@ -192,6 +192,7 @@ class GraphicsFrame extends JFrame implements WindowListener {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	private void showCurrentMode() {
 		DisplayMode dm = graphDevice.getDisplayMode();
 		System.out.println("Current Display Mode: (" + displayModePrintStr(dm) + ")  ");
