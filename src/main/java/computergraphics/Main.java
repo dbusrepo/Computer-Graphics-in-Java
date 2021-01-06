@@ -3,19 +3,23 @@ package computergraphics;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import base.graphics.app.GraphicsApplication;
+import base.graphics.app.GraphApp;
 import base.graphics.app.Settings;
 
-public class Main extends GraphicsApplication {
+public class Main extends GraphApp {
 
-	public Main() {
+	public Main() throws Exception {
 		Settings settings = new Settings();
 		settings.title = "Hello Computer Graphics in Java!";
 		start(settings);
 	}
 
+	public static void main(String[] args) throws Exception {
+		new Main();
+	}
+
 	@Override
-	protected void appDrawCanvas(Graphics2D g) {
+	public void drawFrameApp(Graphics2D g) {
 		g.setBackground(Color.BLACK);
 		g.clearRect(0, 0, getCanvas().getWidth(), getCanvas().getHeight());
 		int maxX = getCanvas().getWidth() - 1;
@@ -28,22 +32,19 @@ public class Main extends GraphicsApplication {
 	}
 
 	@Override
-	protected void appInit() {
+	public void initApp() {
 	}
 
 	@Override
-	protected void appUpdate(long elapsedTime) {
+	public void updateApp(long elapsedTime) {
 	}
 
 	@Override
-	protected void appFinishOff() {
+	public void finishOffApp() {
 	}
 
 	@Override
-	protected void appPrintFinalStats() {
+	public void printFinalStatsApp() {
 	}
 
-	public static void main(String[] args) {
-		new Main();
-	}
 }
