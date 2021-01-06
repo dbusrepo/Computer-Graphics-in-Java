@@ -8,16 +8,20 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.ImageCapabilities;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.text.DecimalFormat;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 
 @SuppressWarnings("serial")
-class GraphicsFrame extends JFrame implements WindowListener {
+class GraphFrame extends JFrame implements WindowListener {
 
-	private GraphicsApplication graphApp;
+	private GraphApp graphApp;
 	private Settings settings;
 	private GraphicsDevice graphDevice;
 	// private BufferStrategy bufferStrategy;
@@ -25,40 +29,44 @@ class GraphicsFrame extends JFrame implements WindowListener {
 	private int accelMemory; // for reporting accl. memory usage
 	private Canvas canvas;
 
-	public GraphicsFrame(GraphicsApplication graphApp) {
+	public GraphFrame(GraphApp graphApp) {
 		super(graphApp.getGraphicsConfiguration());
 		graphApp.setGraphFrame(this);
 		this.graphApp = graphApp;
-	}
-
-	protected void init() {
 		this.settings = graphApp.getSettings();
 		this.graphDevice = graphApp.getGraphDevice();
 		if (settings.showCapabilities) {
 			reportCapabilities();
 		}
-//		setDefaultLookAndFeelDecorated(true);
-		setTitle(settings.title); // TODO
-		addWindowListener(this);
+		init();
+	}
 
-		setUndecorated(settings.fullScreen); // no menu bar, borders, etc. or
-												// Swing components? // TODO
-		setIgnoreRepaint(true); // turn off all paint events doing active
-								// rendering
+	private void init() {
+//		setDefaultLookAndFeelDecorated(true);
+		setTitle(settings.title);
 		setExtendedState(JFrame.NORMAL);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // JFrame.DISPOSE_ON_CLOSE
+		if (settings.showMenu) {
+			setUndecorated(true); // no title bar, borders if there is a menu
+			JMenuBar menuBar = graphApp.buildMenuApp();
+			FrameDragListener frameDragListener = new FrameDragListener(this); // to drag using the menu bar
+			menuBar.addMouseListener(frameDragListener);
+			menuBar.addMouseMotionListener(frameDragListener);
+			setJMenuBar(menuBar);
+		} else {
+			setUndecorated(settings.fullScreen); // no title bar, borders etc if fullscreen
+			setIgnoreRepaint(true); // only when there is no menu to avoid menu vis problems
+		}
 		initCanvas();
-		setResizable(false);
-		setLocationRelativeTo(null); // called after setVisible(true); to center
-										// the window (first screen only?)
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		if (settings.fullScreen) {
 			initFullScreen();
 		}
+		setResizable(false);
 		setAlwaysOnTop(settings.fullScreen);
-		initBufferStrategy();
-		setVisible(true); // done in graphics app
 		setFocusable(true);
-		graphApp.appInitMenu();
+		setVisible(true);
+		setLocationRelativeTo(null);
+		addWindowListener(this);
 		requestFocus();
 	}
 
@@ -70,11 +78,12 @@ class GraphicsFrame extends JFrame implements WindowListener {
 			}
 		}
 		canvas = new Canvas();
-		canvas.setSize(settings.width, settings.height);
+		canvas.setSize(settings.winWidth, settings.winHeight);
 		canvas.setBackground(Color.BLACK);
 		canvas.setIgnoreRepaint(true);
 		add(canvas);
 		pack();
+		initBufferStrategy();
 	}
 
 	private void initBufferStrategy() {
@@ -94,7 +103,7 @@ class GraphicsFrame extends JFrame implements WindowListener {
 //				}
 //			});
 		} catch (Exception ex) {
-			System.out.println("Error while creating buffer strategy");
+			System.err.println("Error while creating buffer strategy");
 			System.exit(0);
 		}
 		try { // sleep to give time for the buffer strategy to be carried out
@@ -120,7 +129,9 @@ class GraphicsFrame extends JFrame implements WindowListener {
 		setMaximizedBounds(env.getMaximumWindowBounds());
 //		setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
 		enableInputMethods(false);
-		setDisplayMode(); // switch on full-screen exclusive mode
+		if (!settings.showMenu) {
+			setDisplayMode(); // switch on full-screen exclusive mode
+		}
 	}
 
 	void toggleFullscreen() {
@@ -148,12 +159,12 @@ class GraphicsFrame extends JFrame implements WindowListener {
 			System.out.println("Display mode changing not supported");
 			return false;
 		}
-		DisplayMode dm = new DisplayMode(settings.width, settings.height, settings.bitDepth,
+		DisplayMode dm = new DisplayMode(settings.winWidth, settings.winHeight, settings.bitDepth,
 				DisplayMode.REFRESH_RATE_UNKNOWN); // any
 													// refresh
 													// rate
 		if (!isDisplayModeAvailable(dm)) {
-			System.out.println("Display mode (" + settings.width + "," + settings.height + "," + settings.bitDepth
+			System.out.println("Display mode (" + settings.winWidth + "," + settings.winHeight + "," + settings.bitDepth
 					+ ") not available. Finding the first compatible:");
 			DisplayMode compatibleMd = findFirstCompatibleMode(new DisplayMode[] { dm });
 			if (compatibleMd == null) {
@@ -260,27 +271,27 @@ class GraphicsFrame extends JFrame implements WindowListener {
 
 	@Override
 	public void windowClosing(java.awt.event.WindowEvent evt) {
-		graphApp.stopApp();
+		graphApp.stop();
 	}
 
 	@Override
 	public void windowIconified(java.awt.event.WindowEvent evt) {
-		graphApp.pauseApp();
+		graphApp.pause();
 	}
 
 	@Override
 	public void windowDeiconified(java.awt.event.WindowEvent evt) {
-		graphApp.resumeApp();
+		graphApp.resume();
 	}
 
 	@Override
 	public void windowActivated(java.awt.event.WindowEvent evt) {
-		graphApp.resumeApp();
+		graphApp.resume();
 	}
 
 	@Override
 	public void windowDeactivated(java.awt.event.WindowEvent evt) {
-		graphApp.pauseApp();
+		graphApp.pause();
 	}
 
 	@Override
@@ -341,5 +352,32 @@ class GraphicsFrame extends JFrame implements WindowListener {
 		return mode1.getRefreshRate() == DisplayMode.REFRESH_RATE_UNKNOWN
 				|| mode2.getRefreshRate() == DisplayMode.REFRESH_RATE_UNKNOWN
 				|| mode1.getRefreshRate() == mode2.getRefreshRate();
+	}
+
+	// https://stackoverflow.com/questions/16046824/making-a-java-swing-frame-movable-and-setundecorated
+	public static class FrameDragListener extends MouseAdapter {
+
+		private final JFrame frame;
+		private Point mouseDownCompCoords = null;
+
+		public FrameDragListener(JFrame frame) {
+			this.frame = frame;
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			mouseDownCompCoords = null;
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			mouseDownCompCoords = e.getPoint();
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			Point currCoords = e.getLocationOnScreen();
+			frame.setLocation(currCoords.x - mouseDownCompCoords.x, currCoords.y - mouseDownCompCoords.y);
+		}
 	}
 }
